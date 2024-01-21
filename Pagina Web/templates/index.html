@@ -1,0 +1,174 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            background-color: #FDFDFD; /* Cambia el color de fondo según tu preferencia */
+        }
+
+        .logos-container {
+            display: flex; /* Utiliza Flexbox para colocar los elementos en una fila */
+            justify-content: space-between; /* Ajusta el espacio entre los elementos */
+        }
+
+        /* Estilo para cada logotipo individual */
+        .logo, .logo-uft {
+            max-width: 200px; /* Ajusta el ancho máximo según tus necesidades */
+            margin: 20px; /* Ajusta el margen entre los logotipos según tus necesidades */
+        }
+
+        .logo img, .logo-uft img {
+            width: 100%; /* Hace que la imagen ocupe todo el ancho del contenedor */
+            height: auto;
+        }
+        h1 {
+            color: #333;
+        }
+
+        form {
+            max-width: 500px;
+            margin: 20px auto;
+            background-color: #88DE36; /* Color de fondo del formulario */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #respuestaDiv {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e6e6e6; /* Color de fondo para la respuesta del servidor */
+            border-radius: 5px;
+            max-width: 300px; 
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+
+        #imagenSeleccionada {
+            margin-top: 20px;
+        }
+
+        #imagenSeleccionada img {
+            max-width: 50%; /* Ajusta el tamaño máximo según tus necesidades, por ejemplo, 50% */
+            height: auto;
+            display: block; /* Para asegurar que la imagen no tenga márgenes adicionales */
+            margin: 0 auto; /* Centrar la imagen */
+        }
+
+        #Barra {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #3156B0;
+            border-radius: 5px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+    <div class="logos-container">
+        <div class="logo">
+            <img src="{{ url_for('static', filename='logo-clc.png') }}" alt="Logo de la clínica">
+        </div>
+        <div class="logo-uft">
+            <img src="{{ url_for('static', filename='logo_uft.png') }}" alt="Logo_Uft">
+        </div>
+    </div>
+    <div id="Barra"></div>
+
+    <h1>Modelo predictivo de Displasia de cadera</h1>
+</head>
+
+<body>
+
+
+<body>
+
+    <form id="imageForm" action="/procesar" method="post" enctype="application/json">
+        <label for="imageInput">Seleccione una imagen:</label>
+        <input type="file" id="imageInput" name="imagen" accept="image/*">
+        <br>
+        <input type="submit" value="Cargar">
+    </form>
+
+    <!-- Mostrar la imagen seleccionada -->
+    <div id="imagenSeleccionada"></div>
+
+    <!-- Agregamos un div para mostrar la respuesta del servidor -->
+    <div id="respuestaDiv"></div>
+
+    <script>
+        document.getElementById('imageInput').addEventListener('change', function(event) {
+            var imagenSeleccionadaDiv = document.getElementById('imagenSeleccionada');
+            imagenSeleccionadaDiv.innerHTML = ''; // Limpiar el contenido anterior
+
+            // Mostrar la imagen seleccionada
+            var archivo = event.target.files[0];
+            if (archivo) {
+                var lector = new FileReader();
+                lector.onload = function(e) {
+                    var imagen = document.createElement('img');
+                    imagen.src = e.target.result;
+                    imagenSeleccionadaDiv.appendChild(imagen);
+                };
+                lector.readAsDataURL(archivo);
+            }
+        });
+
+        document.getElementById('imageForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            // Creamos un objeto FormData y agregamos el archivo
+            var formData = new FormData();
+            formData.append('imagen', document.getElementById('imageInput').files[0]);
+
+            // Creamos un objeto de configuración para la solicitud fetch
+            var requestOptions = {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'Accept': 'application/json', // Especificamos que esperamos JSON como respuesta
+                },
+            };
+
+            // Realizamos la solicitud fetch
+            fetch('/procesar', requestOptions)
+            .then(response => response.json())
+            .then(data => {
+                // Mostramos la respuesta en el div
+                document.getElementById('respuestaDiv').innerHTML =  JSON.stringify(data);
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+
+</body>
+</html>
+
+
+
